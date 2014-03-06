@@ -34,6 +34,7 @@ describe "Static Pages" do
 
   end
 
+
   describe "Help page" do
 
     before { visit help_path }
@@ -61,5 +62,22 @@ describe "Static Pages" do
     it { should have_content('Contact') }
     it { should have_title(full_title('Contact')) } 
 
+  end
+
+  describe "for signed_in users" do
+    let(:user) { FactoryGirl.create(:user) }
+    before do
+        FactoryGirl.create(:micropost,user: user, content: "Lorem ipsum")
+        FactoryGirl.create(:micropost,user: user, content: "Dolor sit amet")
+        sign_in user
+        visit root_path
+    end
+
+    it "shoud render thear user's feed" do
+        user.feed.each do |item|
+            expect(page).to have_selector("li##{item.id}", text: item.content)
+        end
+        
+    end
   end
 end
